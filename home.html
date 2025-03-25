@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Microsoft Kalkulator med Logg, Cookies og Konto</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #1e1e1e;
+        }
+
+        .calculator {
+            background-color: #333;
+            border-radius: 12px;
+            width: 500px;
+            display: flex;
+            flex-direction: row;
+            box-shadow: 0px 0px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .left-panel {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .display {
+            width: 100%;
+            height: 70px;
+            background-color: #000;
+            color: white;
+            font-size: 32px;
+            text-align: right;
+            padding: 20px;
+            border: none;
+            border-radius: 12px 12px 0 0;
+            box-sizing: border-box;
+            font-weight: 300;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            padding: 20px;
+        }
+
+        .button {
+            padding: 20px;
+            font-size: 20px;
+            background-color: #424242;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .button:hover {
+            background-color: #555;
+        }
+
+        .button:active {
+            background-color: #666;
+        }
+
+        .equal {
+            background-color: #00a4ef;
+        }
+
+        .equal:hover {
+            background-color: #008ac9;
+        }
+
+        .clear {
+            background-color: #e64a19;
+        }
+
+        .clear:hover {
+            background-color: #d84315;
+        }
+
+        .operator {
+            background-color: #6a6a6a;
+        }
+
+        .operator:hover {
+            background-color: #7a7a7a;
+        }
+
+        .zero {
+            grid-column: span 2;
+        }
+
+        .log {
+            background-color: #2c2c2c;
+            color: white;
+            padding: 10px;
+            font-size: 16px;
+            height: 300px;
+            width: 250px;
+            overflow-y: auto;
+            border-left: 1px solid #444;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .log-entry {
+            margin-bottom: 10px;
+        }
+
+        .log-empty {
+            color: #888;
+            font-style: italic;
+        }
+
+        .clear-log {
+            background-color: #e64a19;
+            color: white;
+            font-size: 16px;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .clear-log:hover {
+            background-color: #d84315;
+        }
+
+        .login-container {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .login-container input {
+            padding: 8px;
+            margin: 5px;
+            border-radius: 5px;
+        }
+
+        .login-container button {
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .login-container button:hover {
+            background-color: #45a049;
+        }
+
+        .change-background {
+            background-color: #ffeb3b;
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .change-background:hover {
+            background-color: #fbc02d;
+        }
+
+        .logout {
+            background-color: #e64a19;
+            padding: 10px;
+            font-size: 16px;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .logout:hover {
+            background-color: #d84315;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <div class="left-panel">
+            <input type="text" id="display" class="display" disabled>
+            <div class="buttons">
+                <button class="button clear" onclick="clearDisplay()">C</button>
+                <button class="button operator" onclick="appendToDisplay('/')">/</button>
+                <button class="button operator" onclick="appendToDisplay('*')">*</button>
+                <button class="button operator" onclick="appendToDisplay('-')">-</button>
+
+                <button class="button" onclick="appendToDisplay('7')">7</button>
+                <button class="button" onclick="appendToDisplay('8')">8</button>
+                <button class="button" onclick="appendToDisplay('9')">9</button>
+                <button class="button operator" onclick="appendToDisplay('+')">+</button>
+
+                <button class="button" onclick="appendToDisplay('4')">4</button>
+                <button class="button" onclick="appendToDisplay('5')">5</button>
+                <button class="button" onclick="appendToDisplay('6')">6</button>
+                <button class="button" onclick="appendToDisplay('.')">.</button>
+
+                <button class="button" onclick="appendToDisplay('1')">1</button>
+                <button class="button" onclick="appendToDisplay('2')">2</button>
+                <button class="button" onclick="appendToDisplay('3')">3</button>
+
+                <button class="button zero" onclick="appendToDisplay('0')">0</button>
+                <button class="button equal" onclick="calculate()">=</button>
+            </div>
+        </div>
+        <div class="log" id="log">
+            <h4>Logg <button class="clear-log" id="clear-log-btn" onclick="clearLog()">🗑️</button>:</h4>
+            <div id="log-message" class="log-empty">Det er ikke noe i loggen ennå.</div>
+            <!-- Log entries will be added here -->
+        </div>
+    </div>
+
+    <div class="login-container" id="login-container">
+        <input type="text" id="username" placeholder="Brukernavn">
+        <input type="password" id="password" placeholder="Passord">
+        <button onclick="login()">Logg inn</button>
+    </div>
+
+    <button class="change-background" onclick="changeBackground()">Bytt bakgrunn</button>
+    <button class="logout" id="logout-btn" onclick="logout()" style="display: none;">Logg ut</button>
+
+    <script>
+        // Load log from cookies when page is loaded
+        window.onload = function() {
+            let logData = getCookie('log');
+            if (logData) {
+                document.getElementById('log').innerHTML += logData;
+                document.getElementById('log-message').style.display = 'none';
+            }
+        };
+
+        // Function to append value to display
+        function appendToDisplay(value) {
+            document.getElementById('display').value += value;
+        }
+
+        // Clear display
+        function clearDisplay() {
+            document.getElementById('display').value = '';
+        }
+
+        // Calculate the result
+        function calculate() {
+            try {
+                const expression = document.getElementById('display').value;
+                const result = eval(expression);
+                document.getElementById('display').value = result;
+                addToLog(expression + " = " + result); // Add to log
+                saveLog(); // Save log to cookies
+            } catch {
+                document.getElementById('display').value = 'Error';
+            }
+        }
+
+        // Add entry to log
+        function addToLog(entry) {
+            const log = document.getElementById('log');
+            const logMessage = document.getElementById('log-message');
+            const logEntry = document.createElement('div');
+            logEntry.className = 'log-entry';
+            logEntry.textContent = entry;
+            log.appendChild(logEntry);
+            log.scrollTop = log.scrollHeight; // Auto-scroll to the bottom
+            logMessage.style.display = 'none'; // Hide the "no log" message when log is populated
+            document.getElementById('clear-log-btn').style.display = 'inline-block'; // Show delete button
+        }
+
+        // Save log to cookies
+        function saveLog() {
+            const log = document.getElementById('log').innerHTML;
+            setCookie('log', log, 30); // Store log for 30 days
+        }
+
+        // Set cookie function
+        function setCookie(name, value, days) {
+            let expires = "";
+            if (days) {
+                let date = new Date();
+                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                expires = "; expires=" + date.toUTCString();
+            }
+            document.cookie = name + "=" + (value || "") + expires + "; path=/";
+        }
+
+        // Get cookie function
+        function getCookie(name) {
+            let nameEQ = name + "=";
+            let ca = document.cookie.split(';');
+            for (let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+            }
+            return null;
+        }
+
+        // Clear the log
+        function clearLog() {
+            const log = document.getElementById('log');
+            log.innerHTML = '<h4>Logg <button class="clear-log" id="clear-log-btn" onclick="clearLog()">🗑️</button>:</h4><div id="log-message" class="log-empty">Det er ikke noe i loggen ennå.</div>';
+            setCookie('log', '', -1); // Delete log from cookies
+            document.getElementById('clear-log-btn').style.display = 'none';
+        }
+
+        // Change background color
+        function changeBackground() {
+            const colors = ['#1e1e1e', '#f5f5f5', '#2b2b2b', '#ffeb3b'];
+            const currentColor = document.body.style.backgroundColor;
+            const newColor = colors[(colors.indexOf(currentColor) + 1) % colors.length];
+            document.body.style.backgroundColor = newColor;
+        }
+
+        // Log in function (simple)
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (username && password) {
+                localStorage.setItem('user', username);
+                document.getElementById('login-container').style.display = 'none';
+                document.getElementById('logout-btn').style.display = 'inline-block';
+            }
+        }
+
+        // Log out function
+        function logout() {
+            localStorage.removeItem('user');
+            document.getElementById('login-container').style.display = 'block';
+            document.getElementById('logout-btn').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
