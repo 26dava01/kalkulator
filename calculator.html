@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Microsoft Kalkulator med Logg, Cookies og Konto</title>
+    <style>
+        /* (Bruk samme CSS som før for kalkulatoren) */
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <!-- Kalkulatorens HTML innhold her som før -->
+    </div>
+
+    <div class="login-container" id="login-container" style="display: none;">
+        <h3>Du er ikke logget inn. <a href="login.html">Logg inn her</a></h3>
+    </div>
+
+    <div class="logout-container" id="logout-container" style="display: none;">
+        <button class="logout" id="logout-btn" onclick="logout()">Logg ut</button>
+    </div>
+
+    <script>
+        // Sjekk om brukeren er logget inn
+        window.onload = function() {
+            const user = localStorage.getItem('user');
+            if (!user) {
+                // Hvis brukeren ikke er logget inn, vis login-melding
+                document.getElementById('login-container').style.display = 'block';
+                document.getElementById('logout-container').style.display = 'none';
+            } else {
+                // Hvis brukeren er logget inn, skjul login-melding og vis kalkulatoren
+                document.getElementById('login-container').style.display = 'none';
+                document.getElementById('logout-container').style.display = 'block';
+            }
+        };
+
+        // Logg ut funksjon
+        function logout() {
+            // Fjern brukerdata fra localStorage
+            localStorage.removeItem('user');
+            // Vis login-skjerm igjen og fjern kalkulator
+            document.getElementById('login-container').style.display = 'block';
+            document.getElementById('logout-container').style.display = 'none';
+            // Omdiriger til login-siden
+            window.location.href = 'login.html';
+        }
+    </script>
+</body>
+</html>
